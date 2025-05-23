@@ -217,21 +217,59 @@
       
       // Gestion robuste de la réponse qui peut être soit un tableau directement
       // soit un objet contenant le tableau sous différentes clés possibles
-      let correctnessArray = res;
+      let correctnessArray = null;
       
-      if (res && typeof res === 'object' && !Array.isArray(res)) {
-        // La réponse est un objet, on cherche un tableau dans les propriétés
-        const possibleKeys = ['phrases', 'phrases_correctes'];
-        for (const key of possibleKeys) {
-          if (res[key] && Array.isArray(res[key])) {
-            correctnessArray = res[key];
-            break;
+      if (res && typeof res === 'object') {
+        // Vérifier si la réponse a une clé "phrases"
+        if (res.phrases && Array.isArray(res.phrases)) {
+          correctnessArray = res.phrases;
+          log.info(`Tableau trouvé dans la clé 'phrases': ${JSON.stringify(correctnessArray)}`);
+        } 
+        // Vérifier d'autres clés possibles
+        else {
+          const possibleKeys = ['phrases_correctes', 'correct', 'boolean', 'result'];
+          for (const key of possibleKeys) {
+            if (res[key] && Array.isArray(res[key])) {
+              correctnessArray = res[key];
+              log.info(`Tableau trouvé dans la clé '${key}': ${JSON.stringify(correctnessArray)}`);
+              break;
+            }
+          }
+          
+          // Rechercher une clé qui pourrait contenir un tableau sous forme de chaîne
+          if (!correctnessArray) {
+            for (const key in res) {
+              if (typeof res[key] === 'string' && res[key].includes('[') && res[key].includes(']')) {
+                try {
+                  // Extraction du tableau entre crochets
+                  const match = res[key].match(/\[(.*)\]/);
+                  if (match && match[1]) {
+                    // Conversion en tableau de booléens
+                    const values = match[1].split(',').map(v => {
+                      const trimmed = v.trim().toLowerCase();
+                      return trimmed === 'true' || trimmed === '1';
+                    });
+                    correctnessArray = values;
+                    log.info(`Tableau extrait de la chaîne dans la clé '${key}': ${JSON.stringify(correctnessArray)}`);
+                    break;
+                  }
+                } catch (extractError) {
+                  log.warn(`Échec de l'extraction du tableau de la chaîne: ${extractError}`);
+                }
+              }
+            }
           }
         }
-        log.info(`Format de réponse objet détecté, extraction du tableau: ${JSON.stringify(correctnessArray)}`);
       }
       
-      if (!Array.isArray(correctnessArray)) {
+      // Vérifier si la réponse elle-même est un tableau
+      if (correctnessArray === null && Array.isArray(res)) {
+        correctnessArray = res;
+        log.info(`La réponse est directement un tableau: ${JSON.stringify(correctnessArray)}`);
+      }
+      
+      // Si on n'a toujours pas trouvé, utiliser un fallback
+      if (correctnessArray === null) {
         log.error(`Format de réponse inattendu: ${JSON.stringify(res)}`);
         correctnessArray = []; // Fallback en cas de problème
       }

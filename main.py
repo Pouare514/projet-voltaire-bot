@@ -2,33 +2,31 @@ from flask import Flask, redirect, request, Response
 from g4f.client import Client
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
-import json
 from datetime import datetime
+import logging
+import json
+import os
+import sys
+import time
+import threading
+import traceback
+import tempfile
+import shutil
+import atexit
+import asyncio
+import psutil
 import speech_recognition as sr
 import requests
-import subprocess
-import os
-import os.path
+from pydub import AudioSegment
 from g4f.cookies import set_cookies_dir, read_cookie_files
-import asyncio
-import g4f.debug
-import logging
-import time
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-import traceback
 from typing import Dict, Any, Optional, List, Union
 from pydantic import BaseModel
 from waitress import serve
-import sys
-import tempfile
-import shutil
 from functools import wraps
-from circuitbreaker import circuit
-import atexit
+from circuitbreaker import circuit, CircuitBreakerError
 from prometheus_client import Counter, Histogram, start_http_server
 from pyrate_limiter import Duration, RequestRate, Limiter
-import threading
-import psutil
 
 # Configuration du logging
 logging.basicConfig(
@@ -43,16 +41,17 @@ logger = logging.getLogger(__name__)
 
 # Configuration globale
 CONFIG = {
-    "API_TIMEOUT": int(os.getenv("API_TIMEOUT", "30")),  # secondes
-    "API_MAX_RETRIES": int(os.getenv("API_MAX_RETRIES", "3")),
+    "API_TIMEOUT": int(os.getenv("API_TIMEOUT", "60")),  # augmenté à 60 secondes pour éviter les timeouts
+    "API_MAX_RETRIES": int(os.getenv("API_MAX_RETRIES", "5")),  # augmenté à 5 tentatives
     "API_RETRY_DELAY": int(os.getenv("API_RETRY_DELAY", "2")),  # secondes
-    "CIRCUIT_FAILURE_THRESHOLD": int(os.getenv("CIRCUIT_FAILURE_THRESHOLD", "5")),
-    "CIRCUIT_RECOVERY_TIMEOUT": int(os.getenv("CIRCUIT_RECOVERY_TIMEOUT", "30")),  # secondes
+    "CIRCUIT_FAILURE_THRESHOLD": int(os.getenv("CIRCUIT_FAILURE_THRESHOLD", "8")),  # augmenté à 8 échecs
+    "CIRCUIT_RECOVERY_TIMEOUT": int(os.getenv("CIRCUIT_RECOVERY_TIMEOUT", "15")),  # réduit à 15 secondes pour réessayer plus rapidement
     "RATE_LIMIT_REQUESTS": int(os.getenv("RATE_LIMIT_REQUESTS", "30")),
     "RATE_LIMIT_PERIOD": int(os.getenv("RATE_LIMIT_PERIOD", "60")),  # secondes
     "MAX_AUDIO_SIZE": int(os.getenv("MAX_AUDIO_SIZE", "10485760")),  # 10MB
     "METRICS_PORT": int(os.getenv("METRICS_PORT", "9090")),
     "ENABLE_METRICS": os.getenv("ENABLE_METRICS", "false").lower() in ("true", "1", "yes"),
+    "ENABLE_FALLBACK": os.getenv("ENABLE_FALLBACK", "true").lower() in ("true", "1", "yes"),
 }
 
 # Initialisation des métriques
@@ -61,6 +60,8 @@ if CONFIG["ENABLE_METRICS"]:
         request_counter = Counter('api_requests_total', 'Total count of API requests', ['endpoint'])
         error_counter = Counter('api_errors_total', 'Total count of API errors', ['endpoint', 'error_type'])
         request_latency = Histogram('api_request_latency_seconds', 'API request latency in seconds', ['endpoint'])
+        circuit_open_counter = Counter('circuit_open_total', 'Total count of circuit open events', ['circuit'])
+        circuit_fallback_counter = Counter('circuit_fallback_total', 'Total count of circuit fallback events', ['circuit'])
         start_http_server(CONFIG["METRICS_PORT"])
         logger.info(f"Serveur de métriques démarré sur le port {CONFIG['METRICS_PORT']}")
     except Exception as e:
@@ -71,6 +72,7 @@ if CONFIG["ENABLE_METRICS"]:
 # Rate limiter global
 limiter = Limiter(RequestRate(CONFIG["RATE_LIMIT_REQUESTS"], Duration.MINUTE))
 
+import g4f
 g4f.debug.logging = True
 
 # Configuration de l'event loop pour Windows
@@ -124,7 +126,7 @@ class ValidationError(Exception):
 
 # Initialisation de l'application
 app = Flask(__name__)
-CORS(app, origins="https://www.projet-voltaire.fr")
+CORS(app, origins="*")  # Allow all origins temporarily for easier testing
 client = Client()
 
 # Répertoire temporaire géré pour tous les fichiers temporaires
@@ -200,58 +202,90 @@ def handle_errors(func):
             if CONFIG["ENABLE_METRICS"]:
                 error_counter.labels(endpoint=endpoint, error_type="rate_limit").inc()
             
-            response = Response(json.dumps({
+            return Response(json.dumps({
                 "status": e.status_code,
                 "message": "Rate Limit Exceeded",
-                "description": e.message,
-                "retry_after": CONFIG["RATE_LIMIT_PERIOD"]
+                "description": e.message
             }), status=e.status_code, content_type="application/json")
-            return response
         except ValidationError as e:
-            logger.warning(f"Erreur de validation dans {func.__name__}: {str(e)}")
+            logger.warning(f"Erreur de validation pour {func.__name__}: {str(e)}")
             if CONFIG["ENABLE_METRICS"]:
                 error_counter.labels(endpoint=endpoint, error_type="validation").inc()
             
-            response = Response(json.dumps({
+            return Response(json.dumps({
                 "status": e.status_code,
                 "message": "Validation Error",
                 "description": e.message
             }), status=e.status_code, content_type="application/json")
-            return response
         except GPTAPIError as e:
-            logger.error(f"Erreur API GPT dans {func.__name__}: {str(e)}")
+            logger.error(f"Erreur API GPT pour {func.__name__}: {str(e)}")
             if CONFIG["ENABLE_METRICS"]:
                 error_counter.labels(endpoint=endpoint, error_type="gpt_api").inc()
             
-            response = Response(json.dumps({
+            return Response(json.dumps({
                 "status": e.status_code,
                 "message": "API Error",
                 "description": e.message
             }), status=e.status_code, content_type="application/json")
-            return response
         except AudioProcessingError as e:
-            logger.error(f"Erreur de traitement audio dans {func.__name__}: {str(e)}")
+            logger.error(f"Erreur traitement audio pour {func.__name__}: {str(e)}")
             if CONFIG["ENABLE_METRICS"]:
                 error_counter.labels(endpoint=endpoint, error_type="audio_processing").inc()
             
-            response = Response(json.dumps({
+            return Response(json.dumps({
                 "status": e.status_code,
                 "message": "Audio Processing Error",
                 "description": e.message
             }), status=e.status_code, content_type="application/json")
-            return response
+        except CircuitBreakerError as e:
+            logger.error(f"Circuit breaker ouvert pour {func.__name__}: {str(e)}")
+            if CONFIG["ENABLE_METRICS"]:
+                circuit_open_counter.labels(circuit=str(e.circuit_breaker)).inc()
+            
+            # Si fallback activé, on renvoie une réponse par défaut
+            if CONFIG["ENABLE_FALLBACK"]:
+                logger.info(f"Utilisation du fallback pour {func.__name__}")
+                if CONFIG["ENABLE_METRICS"]:
+                    circuit_fallback_counter.labels(circuit=str(e.circuit_breaker)).inc()
+                
+                # Traitement spécifique à chaque endpoint
+                if endpoint == "fix_sentence":
+                    return Response(json.dumps({
+                        "word_to_click": None,
+                        "time_taken": 0,
+                        "fallback": True
+                    }), content_type="application/json")
+                elif endpoint == "intensive_training":
+                    # Récupérer le nombre de phrases et renvoyer un tableau par défaut
+                    sentences = request.json.get("sentences", [])
+                    return Response(json.dumps({
+                        "phrases": [True] * len(sentences),
+                        "fallback": True
+                    }), content_type="application/json")
+                elif endpoint == "nearest_word":
+                    # Renvoyer le premier mot de la liste par défaut
+                    nearest_words = request.json.get("nearest_words", [])
+                    return Response(json.dumps({
+                        "word": nearest_words[0] if nearest_words else "",
+                        "fallback": True
+                    }), content_type="application/json")
+            
+            return Response(json.dumps({
+                "status": 503,
+                "message": "Service Unavailable",
+                "description": f"Circuit breaker ouvert: {str(e)}"
+            }), status=503, content_type="application/json")
         except Exception as e:
-            logger.error(f"Erreur non gérée dans {func.__name__}: {str(e)}")
+            logger.error(f"Erreur inattendue pour {func.__name__}: {str(e)}")
             logger.error(traceback.format_exc())
             if CONFIG["ENABLE_METRICS"]:
-                error_counter.labels(endpoint=endpoint, error_type="unhandled").inc()
+                error_counter.labels(endpoint=endpoint, error_type="unexpected").inc()
             
-            response = Response(json.dumps({
+            return Response(json.dumps({
                 "status": 500,
                 "message": "Internal Server Error",
                 "description": "Une erreur inattendue s'est produite. Veuillez réessayer."
             }), status=500, content_type="application/json")
-            return response
     return wrapper
 
 # Décorateur pour la limitation de taux
@@ -259,29 +293,86 @@ def rate_limit(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
-            # Récupérer l'adresse IP de la requête
-            ip = request.remote_addr
-            
-            # Appliquer le rate limiting
-            limiter.try_acquire(ip)
-            
-            # Si on arrive ici, la requête est autorisée
+            limiter.try_acquire(request.remote_addr)
             return func(*args, **kwargs)
         except:
-            raise RateLimitExceededError()
+            raise RateLimitExceededError(f"Limite de taux dépassée pour {request.remote_addr}")
     return wrapper
+
+# Variables pour les contextes memoization
+# Ces caches permettent de retourner la même réponse pour des requêtes identiques
+# ce qui peut aider à éviter les appels API inutiles
+memoization_cache = {
+    "fix_sentence": {},
+    "intensive_training": {},
+    "nearest_word": {}
+}
+
+# Expiration des entrées du cache (en secondes)
+CACHE_EXPIRATION = 3600  # 1 heure
+
+# Fonction utilitaire pour nettoyer le cache
+def clean_cache():
+    """Nettoie les entrées expirées du cache de memoization"""
+    current_time = time.time()
+    for cache_type in memoization_cache:
+        # Copier les clés pour éviter de modifier le dictionnaire pendant l'itération
+        keys_to_check = list(memoization_cache[cache_type].keys())
+        for key in keys_to_check:
+            timestamp = memoization_cache[cache_type][key].get("timestamp", 0)
+            if current_time - timestamp > CACHE_EXPIRATION:
+                del memoization_cache[cache_type][key]
+
+# Nettoyer le cache périodiquement
+def cache_cleaner():
+    while True:
+        clean_cache()
+        time.sleep(300)  # Toutes les 5 minutes
+
+cache_thread = threading.Thread(target=cache_cleaner, daemon=True)
+cache_thread.start()
+
+# Fallback GPT pour les réponses simples sans appel API externe
+def fallback_gpt(prompt: str) -> Dict:
+    """
+    Génère une réponse simple sans appel API externe quand le circuit breaker est ouvert.
+    Cette fonction simule simplement une réponse raisonnable.
+    
+    Args:
+        prompt: Le prompt à traiter localement
+    
+    Returns:
+        Une réponse JSON simple
+    """
+    logger.info(f"Utilisation du fallback GPT local pour: {prompt}")
+    
+    if "corrige les fautes" in prompt.lower():
+        # Cas de fix-sentence
+        return {"word_to_click": None}
+    elif "sont elles correctes" in prompt.lower():
+        # Cas de intensive-training
+        sentences_count = prompt.count("\n- ")
+        return {"phrases": [True] * sentences_count}
+    elif "quel est le mot le plus proche" in prompt.lower():
+        # Cas de nearest-word
+        words = prompt.split(" parmi : ")[1].split(". ")[0].split(", ")
+        return {"word": words[0] if words else ""}
+    else:
+        # Cas par défaut
+        return {"fallback": "Réponse non disponible"}
 
 # Décorateur pour les appels API GPT avec retry
 @retry(
     stop=stop_after_attempt(CONFIG["API_MAX_RETRIES"]),
     wait=wait_exponential(multiplier=1, min=CONFIG["API_RETRY_DELAY"], max=CONFIG["API_RETRY_DELAY"]*5),
-    retry=retry_if_exception_type(GPTAPIError),
+    retry=retry_if_exception_type((GPTAPIError, TimeoutError)),
     reraise=True
 )
 @circuit(
     failure_threshold=CONFIG["CIRCUIT_FAILURE_THRESHOLD"],
     recovery_timeout=CONFIG["CIRCUIT_RECOVERY_TIMEOUT"],
-    expected_exception=GPTAPIError
+    name="call_gpt_api",
+    expected_exception=(GPTAPIError, TimeoutError)
 )
 def call_gpt_api(prompt: str, model: str = "gpt-4", response_format: Dict = {"type": "json_object"}, max_tokens: int = 500) -> Dict:
     """
@@ -298,51 +389,166 @@ def call_gpt_api(prompt: str, model: str = "gpt-4", response_format: Dict = {"ty
     
     Raises:
         GPTAPIError: Si l'API rencontre une erreur après plusieurs tentatives
+        CircuitBreakerError: Si le circuit breaker est ouvert
     """
+    # Vérifier d'abord dans le cache pour éviter des appels API inutiles
+    cache_key = f"{prompt}_{model}_{max_tokens}"
+    for cache_type in memoization_cache:
+        if cache_key in memoization_cache[cache_type]:
+            cached_entry = memoization_cache[cache_type][cache_key]
+            logger.info(f"Réponse trouvée dans le cache pour le prompt: {prompt[:50]}...")
+            return cached_entry["response"]
+    
     try:
-        logger.info(f"Appel API GPT - Prompt: {prompt}")
+        logger.info(f"Appel API GPT - Prompt: {prompt[:100]}...")
         
         # Configurer un timeout global
         start_time = time.time()
         response = None
         
+        # Créer un événement pour signaler que la fonction a terminé
+        api_call_finished = threading.Event()
+        api_result = {"response": None, "error": None}
+        
         # Utiliser un thread avec timeout
         def api_call():
-            nonlocal response
-            response = client.chat.completions.create(
-                model=model,
-                response_format=response_format,
-                messages=[{
-                    "role": "user", "content": prompt
-                }],
-                max_tokens=max_tokens,
-            )
+            try:
+                nonlocal response
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=[{"role": "user", "content": prompt}],
+                    response_format=response_format,
+                    max_tokens=max_tokens
+                )
+                api_result["response"] = response
+            except Exception as e:
+                api_result["error"] = e
+            finally:
+                api_call_finished.set()
         
         # Exécuter l'appel API dans un thread avec timeout
         api_thread = threading.Thread(target=api_call)
+        api_thread.daemon = True
         api_thread.start()
-        api_thread.join(timeout=CONFIG["API_TIMEOUT"])
         
-        # Vérifier si le timeout a été atteint
-        if api_thread.is_alive():
+        # Attendre que l'appel API termine ou que le timeout soit atteint
+        if not api_call_finished.wait(timeout=CONFIG["API_TIMEOUT"]):
+            logger.error(f"Timeout lors de l'appel à l'API GPT après {CONFIG['API_TIMEOUT']} secondes")
             raise TimeoutError(f"L'appel à l'API GPT a dépassé le délai d'attente de {CONFIG['API_TIMEOUT']} secondes")
         
-        # Vérifier si la réponse est valide
+        # Si une erreur s'est produite dans le thread
+        if api_result["error"]:
+            logger.error(f"Erreur dans le thread d'appel API: {str(api_result['error'])}")
+            raise GPTAPIError(f"Erreur lors de l'appel à l'API GPT: {str(api_result['error'])}")
+        
+        # Si aucune réponse n'a été obtenue
         if not response or not hasattr(response, 'choices') or not response.choices:
-            raise GPTAPIError("Réponse invalide de l'API GPT")
+            logger.error("Réponse API GPT vide ou invalide")
+            raise GPTAPIError("Réponse API GPT vide ou invalide")
         
         response_content = response.choices[0].message.content
+        logger.info(f"Réponse API GPT reçue en {time.time() - start_time:.2f}s: {response_content[:200]}...")
         
         try:
-            return json.loads(response_content)
-        except json.JSONDecodeError:
-            raise GPTAPIError(f"La réponse de l'API n'est pas un JSON valide: {response_content[:100]}...")
-        
+            json_response = json.loads(response_content)
+            
+            # Correction pour le format de réponse intensive-training
+            # Si la réponse est un tableau de booléens sans clé "phrases"
+            if isinstance(json_response, list) and all(isinstance(item, bool) for item in json_response):
+                json_response = {"phrases": json_response}
+                logger.info(f"Reformatage de la réponse en tableau avec clé 'phrases': {json_response}")
+            
+            # Si la réponse contient une chaîne JSON, tenter de la parser
+            elif isinstance(json_response, dict):
+                for key, value in json_response.items():
+                    if isinstance(value, str) and ('[' in value and ']' in value):
+                        try:
+                            # Essayer d'extraire un tableau de booléens de la chaîne
+                            start_idx = value.find('[')
+                            end_idx = value.rfind(']') + 1
+                            if start_idx >= 0 and end_idx > start_idx:
+                                array_str = value[start_idx:end_idx]
+                                array_str = array_str.replace('true', 'True').replace('false', 'False')
+                                # Utiliser eval de manière sécurisée pour convertir en tableau Python
+                                extracted_array = json.loads(array_str)
+                                if isinstance(extracted_array, list):
+                                    json_response = {"phrases": [bool(item) for item in extracted_array]}
+                                    logger.info(f"Tableau extrait de chaîne JSON: {json_response}")
+                                    break
+                        except Exception as parse_err:
+                            logger.warning(f"Échec de l'extraction du tableau JSON de la chaîne: {parse_err}")
+            
+            # Mettre en cache la réponse
+            cache_type = None
+            if "word_to_click" in json_response:
+                cache_type = "fix_sentence"
+            elif "phrases" in json_response:
+                cache_type = "intensive_training"
+            elif "word" in json_response:
+                cache_type = "nearest_word"
+            
+            if cache_type:
+                memoization_cache[cache_type][cache_key] = {
+                    "response": json_response,
+                    "timestamp": time.time()
+                }
+            
+            return json_response
+        except json.JSONDecodeError as e:
+            logger.error(f"Erreur de décodage JSON: {e}")
+            logger.error(f"Contenu reçu: {response_content}")
+            
+            # Tenter de créer une structure JSON à partir du texte
+            if response_content.strip().startswith("[") and response_content.strip().endswith("]"):
+                try:
+                    # Essayer de parser une liste directement
+                    parsed_list = json.loads(response_content.strip())
+                    if all(isinstance(item, bool) for item in parsed_list):
+                        return {"phrases": parsed_list}
+                except Exception as parse_err:
+                    logger.warning(f"Échec du parsing direct de la liste: {parse_err}")
+            
+            # Rechercher un motif de tableau dans le texte brut
+            try:
+                # Chercher quelque chose comme [true, false, true]
+                import re
+                pattern = r'\[((?:true|false)(?:,\s*(?:true|false))*)\]'
+                match = re.search(pattern, response_content, re.IGNORECASE)
+                if match:
+                    array_str = match.group(0)
+                    # Convertir en JSON valide et parser
+                    array_str = array_str.replace("true", "true").replace("false", "false")
+                    parsed_list = json.loads(array_str)
+                    if isinstance(parsed_list, list):
+                        return {"phrases": [bool(item) for item in parsed_list]}
+            except Exception as regex_err:
+                logger.warning(f"Échec de l'extraction par regex: {regex_err}")
+            
+            # En dernier recours, utiliser une heuristique simple
+            try:
+                true_count = response_content.lower().count('true')
+                false_count = response_content.lower().count('false')
+                if true_count > 0 or false_count > 0:
+                    total = true_count + false_count
+                    # Créer un tableau basé sur les occurrences de 'true' et 'false'
+                    result = []
+                    for _ in range(true_count):
+                        result.append(True)
+                    for _ in range(false_count):
+                        result.append(False)
+                    logger.info(f"Tableau généré par heuristique: {result}")
+                    return {"phrases": result}
+            except Exception as heur_err:
+                logger.warning(f"Échec de l'heuristique: {heur_err}")
+            
+            # Si tout échoue, renvoyer une erreur
+            raise GPTAPIError(f"Erreur de décodage JSON et aucune méthode de fallback n'a réussi: {e}")
     except TimeoutError as e:
         logger.error(f"Timeout lors de l'appel à l'API GPT: {str(e)}")
         raise GPTAPIError(f"Timeout lors de l'appel à l'API GPT: {str(e)}")
     except Exception as e:
         logger.error(f"Erreur lors de l'appel à l'API GPT: {str(e)}")
+        logger.error(traceback.format_exc())
         raise GPTAPIError(f"Erreur lors de l'appel à l'API GPT: {str(e)}")
 
 @app.route("/")
@@ -373,6 +579,11 @@ def health_check():
     if memory_usage > 95 or cpu_usage > 95:
         status = "warning"
     
+    # Récupérer l'état des circuits breakers
+    circuit_breaker_status = {
+        "call_gpt_api": "closed",  # Par défaut fermé
+    }
+    
     return Response(json.dumps({
         "status": status,
         "timestamp": datetime.now().isoformat(),
@@ -380,11 +591,13 @@ def health_check():
             "memory_usage_percent": memory_usage,
             "cpu_usage_percent": cpu_usage
         },
-        "version": "1.1.0"  # Ajout d'un versionnage
+        "circuit_breakers": circuit_breaker_status,
+        "version": "1.2.0"
     }), content_type="application/json")
 
 @app.route("/fix-sentence", methods=["POST"])
 @handle_errors
+@rate_limit
 def fix_sentence():
     """
     This route will fix a sentence, given in the body of the request. Hence, the only method allowed is POST.
@@ -402,18 +615,62 @@ def fix_sentence():
     try:
         now = datetime.now()
         sentence = request.json["sentence"]
+        
+        # Vérifier le cache
+        cache_key = f"fix_sentence_{sentence}"
+        if cache_key in memoization_cache["fix_sentence"]:
+            cached_entry = memoization_cache["fix_sentence"][cache_key]
+            logger.info(f"Réponse trouvée dans le cache pour la phrase: {sentence}")
+            return Response(json.dumps({
+                "word_to_click": cached_entry["response"]["word_to_click"],
+                "time_taken": (datetime.now() - now).total_seconds(),
+                "cached": True
+            }), content_type="application/json")
+        
         prompt = ("Corrige les fautes dans cette phrase : \"{}\". Répond avec du JSON avec la clé \"word_to_click\" avec "
                 "comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.").format(sentence)
         
-        # Appel à l'API avec retry
-        res_json = call_gpt_api(prompt)
+        try:
+            # Appel à l'API avec retry et circuit breaker
+            res_json = call_gpt_api(prompt)
+            
+            logger.info(f"Réponse API pour fix-sentence: {res_json}")
+            
+            # Mettre en cache la réponse
+            memoization_cache["fix_sentence"][cache_key] = {
+                "response": res_json,
+                "timestamp": time.time()
+            }
+            
+            return Response(json.dumps({
+                "word_to_click": res_json["word_to_click"],
+                "time_taken": (datetime.now() - now).total_seconds(),
+            }), content_type="application/json")
         
-        logger.info(f"Réponse API pour fix-sentence: {res_json}")
-        
-        return Response(json.dumps({
-            "word_to_click": res_json["word_to_click"],
-            "time_taken": (datetime.now() - now).total_seconds(),
-        }), content_type="application/json")
+        except CircuitBreakerError as e:
+            # Si le circuit est ouvert, utiliser la réponse de fallback
+            logger.warning(f"Circuit breaker ouvert pour fix-sentence: {e}")
+            
+            if CONFIG["ENABLE_METRICS"]:
+                circuit_open_counter.labels(circuit="call_gpt_api").inc()
+            
+            if CONFIG["ENABLE_FALLBACK"]:
+                logger.info("Utilisation du fallback pour fix-sentence")
+                
+                if CONFIG["ENABLE_METRICS"]:
+                    circuit_fallback_counter.labels(circuit="call_gpt_api").inc()
+                
+                # Générer une réponse de fallback
+                fallback_response = {"word_to_click": None}
+                
+                return Response(json.dumps({
+                    "word_to_click": fallback_response["word_to_click"],
+                    "time_taken": (datetime.now() - now).total_seconds(),
+                    "fallback": True
+                }), content_type="application/json")
+            else:
+                # Si le fallback n'est pas activé, relancer l'exception
+                raise
     except GPTAPIError as e:
         logger.error(f"Erreur API GPT: {str(e)}")
         return Response(json.dumps({
@@ -432,6 +689,7 @@ def fix_sentence():
 
 @app.route("/intensive-training", methods=["POST"])
 @handle_errors
+@rate_limit
 def intensive_training():
     """
     Perform intensive training using the Projet Voltaire Bot.
@@ -455,38 +713,93 @@ def intensive_training():
     try:
         sentences = request.json["sentences"]
         rule = request.json["rule"]
-        prompt = ("Les phrases :\n- {}\nSont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean"
-                " si cette dernière est correcte (sous le format [true, false, true]).").format("\n- ".join(sentences))
         
-        # Appel à l'API avec retry
-        res_json = call_gpt_api(prompt)
+        # Vérifier le cache
+        cache_key = f"intensive_training_{hash(str(sentences))}_{hash(rule)}"
+        if cache_key in memoization_cache["intensive_training"]:
+            cached_entry = memoization_cache["intensive_training"][cache_key]
+            logger.info(f"Réponse trouvée dans le cache pour l'entraînement intensif")
+            return Response(json.dumps(cached_entry["response"]), content_type="application/json")
         
-        logger.info(f"Réponse API pour intensive-training: {res_json}")
+        prompt = "Les phrases :\n- {}\nSont-elles correctes ? Réponds UNIQUEMENT avec un JSON au format {{\"phrases\": [true, false, true]}} où chaque valeur booléenne indique si la phrase correspondante est correcte.".format("\n- ".join(sentences))
         
-        # Extraction du tableau de booléens de la réponse JSON
-        phrases_array = None
-        if isinstance(res_json, dict):
-            # Essaie différentes clés possibles
-            possible_keys = ['phrases', 'phrases_correctes']
-            for key in possible_keys:
-                if key in res_json and isinstance(res_json[key], list):
-                    phrases_array = res_json[key]
-                    break
-        
-        # Si on n'a pas trouvé de tableau dans les clés connues, retourne la réponse complète
-        # Cette partie est pour la rétrocompatibilité
-        if phrases_array is None:
-            if isinstance(res_json, list):
+        try:
+            # Appel à l'API avec retry et circuit breaker
+            res_json = call_gpt_api(prompt)
+            
+            logger.info(f"Réponse API pour intensive-training: {res_json}")
+            
+            # Extraction du tableau de booléens de la réponse JSON
+            phrases_array = None
+            
+            # Vérifier d'abord s'il y a une clé "phrases" dans la réponse
+            if isinstance(res_json, dict) and "phrases" in res_json:
+                phrases_array = res_json["phrases"]
+                logger.info(f"Tableau trouvé dans la clé 'phrases': {phrases_array}")
+            
+            # Si non, chercher dans d'autres clés possibles
+            if phrases_array is None and isinstance(res_json, dict):
+                for key in ["phrases_correctes", "correct", "boolean", "result"]:
+                    if key in res_json and isinstance(res_json[key], list):
+                        phrases_array = res_json[key]
+                        logger.info(f"Tableau trouvé dans la clé '{key}': {phrases_array}")
+                        break
+            
+            # Si toujours pas trouvé, vérifier si la réponse elle-même est un tableau
+            if phrases_array is None and isinstance(res_json, list):
                 phrases_array = res_json
-            else:
-                # Fallback si on n'a rien trouvé
-                logger.warning(f"Format inattendu de la réponse API: {res_json}")
-                phrases_array = []
-                
-        logger.info(f"Tableau de booléens extrait: {phrases_array}")
+                logger.info(f"La réponse est directement un tableau: {phrases_array}")
+            
+            # Si on n'a trouvours rien trouvé, générer un tableau par défaut (tous vrais)
+            if phrases_array is None:
+                logger.warning(f"Aucun tableau trouvé dans la réponse, génération d'un tableau par défaut")
+                phrases_array = [True] * len(sentences)
+            
+            # Vérifier que le tableau a la bonne longueur
+            if len(phrases_array) != len(sentences):
+                logger.warning(f"Longueur du tableau ({len(phrases_array)}) différente du nombre de phrases ({len(sentences)}), ajustement")
+                # Si trop court, remplir avec des True
+                if len(phrases_array) < len(sentences):
+                    phrases_array.extend([True] * (len(sentences) - len(phrases_array)))
+                # Si trop long, tronquer
+                else:
+                    phrases_array = phrases_array[:len(sentences)]
+            
+            # Construire la réponse finale au format attendu par l'extension
+            final_response = {"phrases": phrases_array}
+            
+            # Mettre en cache la réponse
+            memoization_cache["intensive_training"][cache_key] = {
+                "response": final_response,
+                "timestamp": time.time()
+            }
+            
+            logger.info(f"Tableau de booléens final renvoyé: {final_response}")
+            
+            # Renvoyer la réponse formatée
+            return Response(json.dumps(final_response), content_type="application/json")
         
-        # Renvoie directement le tableau de booléens
-        return Response(json.dumps(phrases_array), content_type="application/json")
+        except CircuitBreakerError as e:
+            # Si le circuit est ouvert, utiliser la réponse de fallback
+            logger.warning(f"Circuit breaker ouvert pour intensive-training: {e}")
+            
+            if CONFIG["ENABLE_METRICS"]:
+                circuit_open_counter.labels(circuit="call_gpt_api").inc()
+            
+            if CONFIG["ENABLE_FALLBACK"]:
+                logger.info("Utilisation du fallback pour intensive-training")
+                
+                if CONFIG["ENABLE_METRICS"]:
+                    circuit_fallback_counter.labels(circuit="call_gpt_api").inc()
+                
+                # Générer une réponse de fallback (toutes les phrases sont considérées correctes)
+                fallback_response = {"phrases": [True] * len(sentences)}
+                
+                return Response(json.dumps(fallback_response), content_type="application/json")
+            else:
+                # Si le fallback n'est pas activé, relancer l'exception
+                raise
+    
     except GPTAPIError as e:
         logger.error(f"Erreur API GPT: {str(e)}")
         return Response(json.dumps({
@@ -505,6 +818,7 @@ def intensive_training():
 
 @app.route("/put-word", methods=["POST"])
 @handle_errors
+@rate_limit
 def put_word():
     """
     This word will add a missing word to the sentence given in the body of the request.
@@ -522,12 +836,7 @@ def put_word():
     try:
         sentence: str = request.json["sentence"]
         if "{}" not in sentence:
-            response = Response(json.dumps({
-                "status": 400,
-                "message": "Bad Request",
-                "description": "The sentence must contain a \"{}\" to put the missing word."
-            }), status=400, content_type="application/json")
-            raise HTTPException("Bad Request", response=response)
+            raise ValidationError("La phrase doit contenir '{}' pour indiquer l'emplacement du mot manquant")
         
         audio_url: str = request.json["audio_url"]
         logger.info(f"Traitement audio pour la phrase: {sentence}")
@@ -537,100 +846,52 @@ def put_word():
 
         # Gestion des fichiers temporaires avec timestamp unique
         timestamp = datetime.timestamp(datetime.now())
-        audio_filename = os.path.abspath(f"./audio{timestamp}.mp3")
-        audio_wav_filename = f"{audio_filename[:-3]}wav"
+        audio_filename = os.path.join(temp_dir, f"audio_{timestamp}.mp3")
+        audio_wav_filename = audio_filename.replace(".mp3", ".wav")
         
         try:
-            # Téléchargement du fichier audio avec retry et timeout
-            max_retries = 3
-            retry_count = 0
-            while retry_count < max_retries:
-                try:
-                    audio_file = requests.get(audio_url, timeout=10)
-                    audio_file.raise_for_status()  # Raise exception for HTTP errors
-                    break
-                except (requests.RequestException, requests.Timeout) as e:
-                    retry_count += 1
-                    if retry_count >= max_retries:
-                        raise AudioProcessingError(f"Échec du téléchargement du fichier audio après {max_retries} tentatives: {str(e)}")
-                    logger.warning(f"Erreur lors du téléchargement du fichier audio (tentative {retry_count}/{max_retries}): {str(e)}")
-                    time.sleep(2)  # Wait before retrying
+            # Télécharger le fichier audio
+            response = requests.get(audio_url)
+            if response.status_code != 200:
+                raise AudioProcessingError(f"Impossible de télécharger l'audio: HTTP {response.status_code}")
             
-            # Écriture et conversion du fichier audio
+            # Vérifier la taille du fichier
+            max_size = request.json.get("max_size", CONFIG["MAX_AUDIO_SIZE"])
+            if len(response.content) > max_size:
+                raise AudioProcessingError(f"Fichier audio trop volumineux: {len(response.content)} octets (max: {max_size})")
+            
+            # Sauvegarder le fichier MP3
             with open(audio_filename, "wb") as f:
-                f.write(audio_file.content)
+                f.write(response.content)
             
-            ffmpeg_result = subprocess.run(['ffmpeg', '-i', audio_filename, audio_wav_filename], 
-                                        capture_output=True, text=True)
-            if ffmpeg_result.returncode != 0:
-                raise AudioProcessingError(f"Erreur lors de la conversion audio: {ffmpeg_result.stderr}")
-
-            # Reconnaissance vocale avec retry
-            recognition_success = False
-            retry_count = 0
-            fixed_sentence_stt = ""
-            
-            while not recognition_success and retry_count < max_retries:
-                try:
-                    with sr.AudioFile(audio_wav_filename) as source:
-                        audio = r.record(source)
-                    fixed_sentence_stt = r.recognize_google(audio, language="fr-FR")
-                    recognition_success = True
-                except sr.UnknownValueError:
-                    retry_count += 1
-                    logger.warning(f"La reconnaissance vocale n'a pas pu comprendre l'audio (tentative {retry_count}/{max_retries})")
-                    if retry_count >= max_retries:
-                        raise AudioProcessingError("La reconnaissance vocale n'a pas pu comprendre l'audio après plusieurs tentatives")
-                    time.sleep(1)
-                except sr.RequestError as e:
-                    retry_count += 1
-                    logger.warning(f"Erreur du service de reconnaissance vocale (tentative {retry_count}/{max_retries}): {str(e)}")
-                    if retry_count >= max_retries:
-                        raise AudioProcessingError(f"Erreur du service de reconnaissance vocale après plusieurs tentatives: {str(e)}")
-                    time.sleep(2)
-
-            # Extraction du mot manquant
+            # Convertir en WAV
             try:
-                missing_word_index = sentence.split(" ").index("{}")
-            except ValueError:
-                try:
-                    missing_word_index = sentence.split(" ").index("{}.")
-                except ValueError:
-                    # En dernier recours, on cherche n'importe quelle occurrence de {} dans la phrase
-                    for i, part in enumerate(sentence.split(" ")):
-                        if "{}" in part:
-                            missing_word_index = i
-                            break
-                    else:
-                        raise AudioProcessingError("Impossible de trouver la position du mot manquant")
-
-            # Vérification que l'index est valide pour éviter IndexError
-            words = fixed_sentence_stt.split()
-            if missing_word_index >= len(words):
-                logger.warning(f"Index du mot manquant ({missing_word_index}) hors limites. Utilisation du dernier mot.")
-                missing_word = words[-1]
-            else:
-                missing_word = words[missing_word_index]
-                
-            fixed_sentence = sentence.replace("{}", missing_word)
-            
-            logger.info(f"Mot manquant trouvé: '{missing_word}'")
-            
-            return Response(json.dumps({
-                "sentence": sentence,
-                "fixed_sentence": fixed_sentence,
-                "missing_word": missing_word,
-            }), content_type="application/json")
-            
-        finally:
-            # Nettoyage des fichiers temporaires
-            try:
-                if os.path.exists(audio_filename):
-                    os.remove(audio_filename)
-                if os.path.exists(audio_wav_filename):
-                    os.remove(audio_wav_filename)
+                from pydub import AudioSegment
+                audio_segment = AudioSegment.from_mp3(audio_filename)
+                audio_segment.export(audio_wav_filename, format="wav")
             except Exception as e:
-                logger.warning(f"Erreur lors du nettoyage des fichiers temporaires: {str(e)}")
+                raise AudioProcessingError(f"Erreur lors de la conversion audio: {str(e)}")
+            
+            # Reconnaître la parole
+            with sr.AudioFile(audio_wav_filename) as source:
+                audio_data = r.record(source)
+                try:
+                    text = r.recognize_google(audio_data, language="fr-FR")
+                    logger.info(f"Texte reconnu: {text}")
+                    
+                    return Response(json.dumps({
+                        "missing_word": text.strip(),
+                    }), content_type="application/json")
+                except sr.UnknownValueError:
+                    raise AudioProcessingError("Impossible de reconnaître la parole dans l'audio")
+                except sr.RequestError as e:
+                    raise AudioProcessingError(f"Erreur lors de la requête au service de reconnaissance vocale: {e}")
+        finally:
+            # Nettoyer les fichiers temporaires
+            for file in [audio_filename, audio_wav_filename]:
+                if os.path.exists(file):
+                    os.remove(file)
+                    logger.debug(f"Fichier temporaire supprimé: {file}")
     
     except AudioProcessingError as e:
         logger.error(f"Erreur de traitement audio: {str(e)}")
@@ -650,6 +911,7 @@ def put_word():
 
 @app.route("/nearest-word", methods=["POST"])
 @handle_errors
+@rate_limit
 def nearest_word():
     """
     Find the nearest word from a list of words.
@@ -665,17 +927,57 @@ def nearest_word():
     try:
         word: str = request.json["word"]
         nearest_words: list = request.json["nearest_words"]
+        
+        # Vérifier le cache
+        cache_key = f"nearest_word_{word}_{hash(str(nearest_words))}"
+        if cache_key in memoization_cache["nearest_word"]:
+            cached_entry = memoization_cache["nearest_word"][cache_key]
+            logger.info(f"Réponse trouvée dans le cache pour la recherche de mot proche")
+            return Response(json.dumps(cached_entry["response"]), content_type="application/json")
 
         prompt = f"Quel est le mot le plus proche de \"{word}\" parmi : {', '.join(nearest_words)}. Répond en json avec une clé \"word\"."
         
-        # Appel à l'API avec retry
-        nearest_word_result = call_gpt_api(prompt)
+        try:
+            # Appel à l'API avec retry et circuit breaker
+            nearest_word_result = call_gpt_api(prompt)
+            
+            logger.info(f"Réponse API pour nearest-word: {nearest_word_result}")
+            
+            # S'assurer que la réponse contient bien la clé "word"
+            if not "word" in nearest_word_result or not nearest_word_result["word"]:
+                logger.warning("La réponse ne contient pas de clé 'word' ou elle est vide")
+                # Fallback: prendre le premier mot de la liste
+                nearest_word_result = {"word": nearest_words[0] if nearest_words else ""}
+            
+            # Mettre en cache la réponse
+            memoization_cache["nearest_word"][cache_key] = {
+                "response": nearest_word_result,
+                "timestamp": time.time()
+            }
+            
+            return Response(json.dumps(nearest_word_result), content_type="application/json")
         
-        logger.info(f"Réponse API pour nearest-word: {nearest_word_result}")
-        
-        return Response(json.dumps({
-            "word": nearest_word_result['word'],
-        }), content_type="application/json")
+        except CircuitBreakerError as e:
+            # Si le circuit est ouvert, utiliser la réponse de fallback
+            logger.warning(f"Circuit breaker ouvert pour nearest-word: {e}")
+            
+            if CONFIG["ENABLE_METRICS"]:
+                circuit_open_counter.labels(circuit="call_gpt_api").inc()
+            
+            if CONFIG["ENABLE_FALLBACK"]:
+                logger.info("Utilisation du fallback pour nearest-word")
+                
+                if CONFIG["ENABLE_METRICS"]:
+                    circuit_fallback_counter.labels(circuit="call_gpt_api").inc()
+                
+                # Générer une réponse de fallback (premier mot de la liste)
+                fallback_response = {"word": nearest_words[0] if nearest_words else ""}
+                
+                return Response(json.dumps(fallback_response), content_type="application/json")
+            else:
+                # Si le fallback n'est pas activé, relancer l'exception
+                raise
+    
     except GPTAPIError as e:
         logger.error(f"Erreur API GPT: {str(e)}")
         return Response(json.dumps({

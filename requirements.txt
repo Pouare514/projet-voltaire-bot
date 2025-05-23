@@ -13,3 +13,5 @@ prometheus-client==0.19.0
 pytimeparse==1.1.8
 watchdog==4.0.0
 pyrate-limiter==2.10.0
+pydub==0.25.1
+psutil==5.9.8

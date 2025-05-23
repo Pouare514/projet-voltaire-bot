@@ -1,0 +1,679 @@
+2025-05-23 15:39:10,836 - __main__ - INFO - Répertoire temporaire créé: C:\Users\pouar\AppData\Local\Temp\voltaire_bot_p2aslznd
+2025-05-23 15:39:10,841 - __main__ - INFO - Démarrage du serveur sur 0.0.0.0:5000
+2025-05-23 15:39:10,842 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-05-23 15:39:28,016 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- C'est moi qui fais tout le travail, et c'est à moi que l'on fait des reproches ?
+- Ce n'est pourtant pas toi qui vas me donner des ordres !
+- Ce n'est pas toi qui décide de la conduite à tenir.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:39:33,125 - __main__ - INFO - Réponse API pour intensive-training: {'phrases_correctes': [True, True, True]}
+2025-05-23 15:39:53,317 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Toi qui sait tout, explique-nous ce qui se passe.
+- Toi qui est le plus âgé, dis-nous ce qu'il convient de faire.
+- Il va falloir se serrer la ceinture, c'est moi qui vous le dit !
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:39:54,435 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [True, False, True]}
+2025-05-23 15:41:15,081 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': None}
+2025-05-23 15:41:16,605 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "Si tu as besoin de quoique ce soit, tu sais où est mon bureau.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:41:21,360 - nodriver.core.browser - INFO - starting
+	executable :C:\Program Files\Google\Chrome\Application\chrome.exe
+
+arguments:
+--remote-allow-origins=*
+	--no-first-run
+	--no-service-autorun
+	--no-default-browser-check
+	--homepage=about:blank
+	--no-pings
+	--password-store=basic
+	--disable-infobars
+	--disable-breakpad
+	--disable-dev-shm-usage
+	--disable-session-crashed-bubble
+	--disable-search-engine-choice-screen
+	--user-data-dir=C:\Users\pouar\AppData\Local\g4f-nodriver\g4f-nodriver
+	--disable-session-crashed-bubble
+	--disable-features=IsolateOrigins,site-per-process
+	--remote-debugging-host=127.0.0.1
+	--remote-debugging-port=60652
+2025-05-23 15:41:22,650 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': 'quoique'}
+2025-05-23 15:41:24,688 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- N'importe quel espèce de poisson convient pour cette recette.
+- Improvisez une espèce d'apéritif pour nos clients.
+- Cet espèce de vieux machin ne mérite pas le nom d'imprimante.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:41:27,289 - __main__ - INFO - Réponse API pour intensive-training: [False, False, False]
+2025-05-23 15:41:28,809 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- N'importe quel espèce de téléphone fera l'affaire.
+- Il me faut un espèce de carton assez grand pour l'emballer.
+- Ce bureau est en fait une espèce de placard.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:41:29,336 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [True, False, True]}
+2025-05-23 15:41:31,763 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "J'ai entendu un espèce d'énorme bruit métallique.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:41:34,073 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': 'espèce'}
+2025-05-23 15:41:36,755 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Le remède a été pire que le mal : les médicaments m'ont mis l'estomac sans dessus dessous.
+- Balayée par un cyclone, la ville est sens dessus dessous.
+- Le directeur général ayant démissionné, l'entreprise est sans dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:41:37,335 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [True, True, True]}
+2025-05-23 15:43:45,509 - __main__ - INFO - Répertoire temporaire créé: C:\Users\pouar\AppData\Local\Temp\voltaire_bot_mktcsh2k
+2025-05-23 15:43:45,524 - __main__ - INFO - Démarrage du serveur sur 0.0.0.0:5000
+2025-05-23 15:43:45,524 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-05-23 15:43:56,207 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Le remède a été pire que le mal : les médicaments m'ont mis l'estomac sans dessus dessous.
+- Balayée par un cyclone, la ville est sens dessus dessous.
+- Le directeur général ayant démissionné, l'entreprise est sans dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:44:05,748 - __main__ - INFO - Réponse API pour intensive-training: [True, True, True]
+2025-05-23 15:44:05,748 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:44:07,278 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Avec la grève des infirmières, le service est sans dessus dessous.
+- Le divorce a mis la vie de cette famille sans dessus dessous.
+- Le comptable a disparu, laissant les livres de comptes sens dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:44:10,223 - __main__ - INFO - Réponse API pour intensive-training: {'phrases_correctes': [True, True, True]}
+2025-05-23 15:44:10,223 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:44:11,751 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Depuis le départ de la secrétaire, le planning des rendez-vous est sens dessus dessous.
+- Après le passage de la femme de ménage, les dossiers étaient sens dessus dessous sur le bureau.
+- Séverine a mis la maison sans dessus dessous pour retrouver ses clés de voiture.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:44:28,095 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Depuis le départ de la secrétaire, le planning des rendez-vous est sens dessus dessous.
+- Après le passage de la femme de ménage, les dossiers étaient sens dessus dessous sur le bureau.
+- Séverine a mis la maison sans dessus dessous pour retrouver ses clés de voiture.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:44:32,762 - __main__ - INFO - Réponse API pour intensive-training: [True, True, True]
+2025-05-23 15:44:32,762 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:44:41,759 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:44:43,761 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Depuis le départ de la secrétaire, le planning des rendez-vous est sens dessus dessous.
+- Après le passage de la femme de ménage, les dossiers étaient sens dessus dessous sur le bureau.
+- Séverine a mis la maison sans dessus dessous pour retrouver ses clés de voiture.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:44:45,894 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [True, True, True]}
+2025-05-23 15:44:45,894 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:45:29,363 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "La tornade semblait avoir tout mis sens dessus dessous.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:45:32,214 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': 'mis'}
+2025-05-23 15:45:34,252 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Ce n'est pas moi qui vais protester !
+- Ce n'est pourtant pas toi qui vas me donner des ordres !
+- Toi qui est le plus âgé, dis-nous ce qu'il convient de faire.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:45:36,360 - nodriver.core.browser - INFO - starting
+	executable :C:\Program Files\Google\Chrome\Application\chrome.exe
+
+arguments:
+--remote-allow-origins=*
+	--no-first-run
+	--no-service-autorun
+	--no-default-browser-check
+	--homepage=about:blank
+	--no-pings
+	--password-store=basic
+	--disable-infobars
+	--disable-breakpad
+	--disable-dev-shm-usage
+	--disable-session-crashed-bubble
+	--disable-search-engine-choice-screen
+	--user-data-dir=C:\Users\pouar\AppData\Local\g4f-nodriver\g4f-nodriver
+	--disable-session-crashed-bubble
+	--disable-features=IsolateOrigins,site-per-process
+	--remote-debugging-host=127.0.0.1
+	--remote-debugging-port=61583
+2025-05-23 15:45:41,777 - __main__ - INFO - Réponse API pour intensive-training: [True, False, True]
+2025-05-23 15:45:41,777 - __main__ - INFO - Tableau de booléens extrait: [True, False, True]
+2025-05-23 15:45:43,310 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Il va falloir se serrer la ceinture, c'est moi qui vous le dit !
+- C'est toi, et personne d'autre, qui as pris la responsabilité d'ouvrir ce conflit.
+- Ce n'est pas toi qui décide de la conduite à tenir.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:45:45,708 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [True, True, False]}
+2025-05-23 15:45:45,708 - __main__ - INFO - Tableau de booléens extrait: [True, True, False]
+2025-05-23 15:45:47,226 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- C'est moi qui fais tout le travail, et c'est à moi que l'on fait des reproches ?
+- Moi qui lis lentement, j'en ai pour des semaines avec ce roman !
+- Toi qui sait tout, explique-nous ce qui se passe.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:45:48,351 - __main__ - INFO - Réponse API pour intensive-training: [True, True, True]
+2025-05-23 15:45:48,351 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:45:49,876 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Pour moi qui veut changer d'horizon, c'est l'occasion rêvée !
+- Toi qui sait tout, explique-nous ce qui se passe.
+- Moi qui lis lentement, j'en ai pour des semaines avec ce roman !
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:45:50,459 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [True, True, True]}
+2025-05-23 15:45:50,459 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:45:51,994 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Ce n'est pas toi qui décide de la conduite à tenir.
+- Toi qui est le plus âgé, dis-nous ce qu'il convient de faire.
+- Il va falloir se serrer la ceinture, c'est moi qui vous le dit !
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:45:54,240 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [True, True, False]}
+2025-05-23 15:45:54,240 - __main__ - INFO - Tableau de booléens extrait: [True, True, False]
+2025-05-23 15:45:55,761 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Ce n'est pourtant pas toi qui vas me donner des ordres !
+- C'est toi, et personne d'autre, qui as pris la responsabilité d'ouvrir ce conflit.
+- C'est moi qui fais tout le travail, et c'est à moi que l'on fait des reproches ?
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:45:57,482 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [{'phrase': "Ce n'est pourtant pas toi qui vas me donner des ordres\xa0!", 'correcte': True}, {'phrase': "C'est toi, et personne d'autre, qui as pris la responsabilité d'ouvrir ce conflit.", 'correcte': False}, {'phrase': "C'est moi qui fais tout le travail, et c'est à moi que l'on fait des reproches\xa0?", 'correcte': True}]}
+2025-05-23 15:45:57,482 - __main__ - INFO - Tableau de booléens extrait: [{'phrase': "Ce n'est pourtant pas toi qui vas me donner des ordres\xa0!", 'correcte': True}, {'phrase': "C'est toi, et personne d'autre, qui as pris la responsabilité d'ouvrir ce conflit.", 'correcte': False}, {'phrase': "C'est moi qui fais tout le travail, et c'est à moi que l'on fait des reproches\xa0?", 'correcte': True}]
+2025-05-23 15:46:01,024 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': None}
+2025-05-23 15:46:02,554 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "Quoiqu'il en soit, nous devons leur donner une réponse.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:46:04,578 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': None}
+2025-05-23 15:46:06,611 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Improvisez une espèce d'apéritif pour nos clients.
+- Ce bureau est en fait une espèce de placard.
+- N'importe quel espèce de poisson convient pour cette recette.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:46:16,654 - nodriver.core.browser - INFO - starting
+	executable :C:\Program Files\Google\Chrome\Application\chrome.exe
+
+arguments:
+--remote-allow-origins=*
+	--no-first-run
+	--no-service-autorun
+	--no-default-browser-check
+	--homepage=about:blank
+	--no-pings
+	--password-store=basic
+	--disable-infobars
+	--disable-breakpad
+	--disable-dev-shm-usage
+	--disable-session-crashed-bubble
+	--disable-search-engine-choice-screen
+	--user-data-dir=C:\Users\pouar\AppData\Local\g4f-nodriver\g4f-nodriver
+	--disable-session-crashed-bubble
+	--disable-features=IsolateOrigins,site-per-process
+	--remote-debugging-host=127.0.0.1
+	--remote-debugging-port=61713
+2025-05-23 15:46:22,624 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Improvisez une espèce d'apéritif pour nos clients.
+- Ce bureau est en fait une espèce de placard.
+- N'importe quel espèce de poisson convient pour cette recette.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:46:26,258 - __main__ - INFO - Réponse API pour intensive-training: {'phrases_correctes': [True, False, False]}
+2025-05-23 15:46:26,258 - __main__ - INFO - Tableau de booléens extrait: [True, False, False]
+2025-05-23 15:46:27,772 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Nous rangeons les outils dans une espèce d'appentis.
+- Rédigez un court texte d'introduction, une espèce de préambule.
+- On nous a servi un espèce de cocktail fruité.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:46:29,194 - __main__ - INFO - Réponse API pour intensive-training: {'phrases_correctes': [True, True, True]}
+2025-05-23 15:46:29,194 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:46:30,712 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- N'importe quel espèce de téléphone fera l'affaire.
+- Cet espèce de vieux machin ne mérite pas le nom d'imprimante.
+- Cet espèce d'oiseau se raréfie.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:46:36,619 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:46:38,620 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Improvisez une espèce d'apéritif pour nos clients.
+- Ce bureau est en fait une espèce de placard.
+- N'importe quel espèce de poisson convient pour cette recette.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:46:39,550 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [True, True, True]}
+2025-05-23 15:46:39,555 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:46:46,603 - __main__ - ERROR - Erreur lors de l'appel à l'API GPT: La réponse de l'API n'est pas un JSON valide: Error during authentication for model openrouter:openai/gpt-4-0314: Failed to create temporary accou...
+2025-05-23 15:46:46,735 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- N'importe quel espèce de téléphone fera l'affaire.
+- Cet espèce de vieux machin ne mérite pas le nom d'imprimante.
+- Cet espèce d'oiseau se raréfie.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:46:48,606 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- N'importe quel espèce de téléphone fera l'affaire.
+- Cet espèce de vieux machin ne mérite pas le nom d'imprimante.
+- Cet espèce d'oiseau se raréfie.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:46:50,228 - __main__ - INFO - Réponse API pour intensive-training: {'phrases_correctes': [False, False, True]}
+2025-05-23 15:46:50,228 - __main__ - INFO - Tableau de booléens extrait: [False, False, True]
+2025-05-23 15:46:51,759 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Il me faut un espèce de carton assez grand pour l'emballer.
+- Improvisez une espèce d'apéritif pour nos clients.
+- Ce bureau est en fait une espèce de placard.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:47:07,222 - __main__ - ERROR - Erreur lors de l'appel à l'API GPT: La réponse de l'API n'est pas un JSON valide: Error during authentication for model openrouter:openai/gpt-4: Failed to create temporary account. S...
+2025-05-23 15:47:07,774 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Il me faut un espèce de carton assez grand pour l'emballer.
+- Improvisez une espèce d'apéritif pour nos clients.
+- Ce bureau est en fait une espèce de placard.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:47:09,238 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Il me faut un espèce de carton assez grand pour l'emballer.
+- Improvisez une espèce d'apéritif pour nos clients.
+- Ce bureau est en fait une espèce de placard.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:47:10,099 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [True, True, True]}
+2025-05-23 15:47:10,099 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:47:11,624 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- N'importe quel espèce de poisson convient pour cette recette.
+- N'importe quel espèce de téléphone fera l'affaire.
+- On nous a servi un espèce de cocktail fruité.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:47:14,257 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [False, False, True]}
+2025-05-23 15:47:14,257 - __main__ - INFO - Tableau de booléens extrait: [False, False, True]
+2025-05-23 15:47:15,778 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Cet espèce de vieux machin ne mérite pas le nom d'imprimante.
+- Cet espèce d'oiseau se raréfie.
+- Rédigez un court texte d'introduction, une espèce de préambule.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:47:16,705 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [False, True, True]}
+2025-05-23 15:47:16,705 - __main__ - INFO - Tableau de booléens extrait: [False, True, True]
+2025-05-23 15:47:18,237 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Nous rangeons les outils dans une espèce d'appentis.
+- On nous a servi un espèce de cocktail fruité.
+- Rédigez un court texte d'introduction, une espèce de préambule.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:47:18,615 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:47:20,617 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- N'importe quel espèce de téléphone fera l'affaire.
+- Cet espèce de vieux machin ne mérite pas le nom d'imprimante.
+- Cet espèce d'oiseau se raréfie.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:47:24,607 - __main__ - ERROR - Erreur lors de l'appel à l'API GPT: La réponse de l'API n'est pas un JSON valide: Error during authentication for model openrouter:openai/gpt-4: Rate limited by Puter.js API. Try aga...
+2025-05-23 15:47:26,617 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Il me faut un espèce de carton assez grand pour l'emballer.
+- Improvisez une espèce d'apéritif pour nos clients.
+- Ce bureau est en fait une espèce de placard.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:47:33,882 - __main__ - ERROR - Erreur lors de l'appel à l'API GPT: La réponse de l'API n'est pas un JSON valide: Error during authentication for model openrouter:openai/gpt-4-32k-0314: Rate limited by Puter.js API...
+2025-05-23 15:47:34,262 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Nous rangeons les outils dans une espèce d'appentis.
+- On nous a servi un espèce de cocktail fruité.
+- Rédigez un court texte d'introduction, une espèce de préambule.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:47:34,357 - __main__ - INFO - Réponse API pour intensive-training: [True, True, True]
+2025-05-23 15:47:34,357 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:47:35,892 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Nous rangeons les outils dans une espèce d'appentis.
+- On nous a servi un espèce de cocktail fruité.
+- Rédigez un court texte d'introduction, une espèce de préambule.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:47:39,742 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [True, False, True]}
+2025-05-23 15:47:39,742 - __main__ - INFO - Tableau de booléens extrait: [True, False, True]
+2025-05-23 15:47:50,619 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:47:50,619 - __main__ - ERROR - Erreur API GPT: Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:47:50,779 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Nous rangeons les outils dans une espèce d'appentis.
+- On nous a servi un espèce de cocktail fruité.
+- Rédigez un court texte d'introduction, une espèce de préambule.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:47:54,428 - __main__ - INFO - Réponse API pour intensive-training: [True, False, True]
+2025-05-23 15:47:54,428 - __main__ - INFO - Tableau de booléens extrait: [True, False, True]
+2025-05-23 15:47:55,960 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "Ils voulaient fonder un espèce de comité.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:47:57,855 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': 'espèce'}
+2025-05-23 15:48:00,195 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Avec la grève des infirmières, le service est sans dessus dessous.
+- Depuis le départ de la secrétaire, le planning des rendez-vous est sens dessus dessous.
+- Balayée par un cyclone, la ville est sens dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:48:02,374 - __main__ - INFO - Réponse API pour intensive-training: {'phrases_correctes': [True, False, True]}
+2025-05-23 15:48:02,374 - __main__ - INFO - Tableau de booléens extrait: [True, False, True]
+2025-05-23 15:48:03,899 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Séverine a mis la maison sans dessus dessous pour retrouver ses clés de voiture.
+- Le comptable a disparu, laissant les livres de comptes sens dessus dessous.
+- Les ouvriers, furieux, ont mis l'usine sans dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:48:04,279 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:48:05,054 - __main__ - INFO - Réponse API pour intensive-training: {'phrases_correctes': [True, True, True]}
+2025-05-23 15:48:05,054 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:48:06,280 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Nous rangeons les outils dans une espèce d'appentis.
+- On nous a servi un espèce de cocktail fruité.
+- Rédigez un court texte d'introduction, une espèce de préambule.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:48:06,595 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Après le passage de la femme de ménage, les dossiers étaient sens dessus dessous sur le bureau.
+- Le remède a été pire que le mal : les médicaments m'ont mis l'estomac sans dessus dessous.
+- Le divorce a mis la vie de cette famille sans dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:48:08,176 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [True, False, True]}
+2025-05-23 15:48:08,176 - __main__ - INFO - Tableau de booléens extrait: [True, False, True]
+2025-05-23 15:48:12,398 - nodriver.core.browser - INFO - starting
+	executable :C:\Program Files\Google\Chrome\Application\chrome.exe
+
+arguments:
+--remote-allow-origins=*
+	--no-first-run
+	--no-service-autorun
+	--no-default-browser-check
+	--homepage=about:blank
+	--no-pings
+	--password-store=basic
+	--disable-infobars
+	--disable-breakpad
+	--disable-dev-shm-usage
+	--disable-session-crashed-bubble
+	--disable-search-engine-choice-screen
+	--user-data-dir=C:\Users\pouar\AppData\Local\g4f-nodriver\g4f-nodriver
+	--disable-session-crashed-bubble
+	--disable-features=IsolateOrigins,site-per-process
+	--remote-debugging-host=127.0.0.1
+	--remote-debugging-port=62138
+2025-05-23 15:48:22,614 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Après le passage de la femme de ménage, les dossiers étaient sens dessus dessous sur le bureau.
+- Le remède a été pire que le mal : les médicaments m'ont mis l'estomac sans dessus dessous.
+- Le divorce a mis la vie de cette famille sans dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:48:24,666 - __main__ - INFO - Réponse API pour intensive-training: {'phrases_correctes': [True, True, True]}
+2025-05-23 15:48:24,666 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:48:26,188 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Le directeur général ayant démissionné, l'entreprise est sans dessus dessous.
+- Après le passage de la femme de ménage, les dossiers étaient sens dessus dessous sur le bureau.
+- Le divorce a mis la vie de cette famille sans dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:48:28,538 - __main__ - INFO - Réponse API pour intensive-training: {'phrases_correctes': [True, True, True]}
+2025-05-23 15:48:28,538 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:48:30,054 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Le remède a été pire que le mal : les médicaments m'ont mis l'estomac sans dessus dessous.
+- Les ouvriers, furieux, ont mis l'usine sans dessus dessous.
+- Depuis le départ de la secrétaire, le planning des rendez-vous est sens dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:48:36,614 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:48:38,616 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Après le passage de la femme de ménage, les dossiers étaient sens dessus dessous sur le bureau.
+- Le remède a été pire que le mal : les médicaments m'ont mis l'estomac sans dessus dessous.
+- Le divorce a mis la vie de cette famille sans dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:48:40,756 - __main__ - INFO - Réponse API pour intensive-training: {'phrases_correctes': [True, True, True]}
+2025-05-23 15:48:40,756 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:48:46,068 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Le remède a été pire que le mal : les médicaments m'ont mis l'estomac sans dessus dessous.
+- Les ouvriers, furieux, ont mis l'usine sans dessus dessous.
+- Depuis le départ de la secrétaire, le planning des rendez-vous est sens dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:48:47,315 - __main__ - INFO - Réponse API pour intensive-training: {'phrases_correctes': [True, True, True]}
+2025-05-23 15:48:47,315 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:48:48,846 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Le comptable a disparu, laissant les livres de comptes sens dessus dessous.
+- Avec la grève des infirmières, le service est sans dessus dessous.
+- Balayée par un cyclone, la ville est sens dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:48:51,663 - nodriver.core.browser - INFO - starting
+	executable :C:\Program Files\Google\Chrome\Application\chrome.exe
+
+arguments:
+--remote-allow-origins=*
+	--no-first-run
+	--no-service-autorun
+	--no-default-browser-check
+	--homepage=about:blank
+	--no-pings
+	--password-store=basic
+	--disable-infobars
+	--disable-breakpad
+	--disable-dev-shm-usage
+	--disable-session-crashed-bubble
+	--disable-search-engine-choice-screen
+	--user-data-dir=C:\Users\pouar\AppData\Local\g4f-nodriver\g4f-nodriver
+	--disable-session-crashed-bubble
+	--disable-features=IsolateOrigins,site-per-process
+	--remote-debugging-host=127.0.0.1
+	--remote-debugging-port=62266
+2025-05-23 15:49:00,063 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:49:02,064 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Le remède a été pire que le mal : les médicaments m'ont mis l'estomac sans dessus dessous.
+- Les ouvriers, furieux, ont mis l'usine sans dessus dessous.
+- Depuis le départ de la secrétaire, le planning des rendez-vous est sens dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:49:03,387 - __main__ - INFO - Réponse API pour intensive-training: {'phrases_correctes': [True, True, True]}
+2025-05-23 15:49:03,387 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:49:06,767 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Le comptable a disparu, laissant les livres de comptes sens dessus dessous.
+- Avec la grève des infirmières, le service est sans dessus dessous.
+- Balayée par un cyclone, la ville est sens dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:49:14,005 - __main__ - INFO - Réponse API pour intensive-training: {'phrases_correctes': [True, True, True]}
+2025-05-23 15:49:14,005 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:49:16,774 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Séverine a mis la maison sans dessus dessous pour retrouver ses clés de voiture.
+- Le remède a été pire que le mal : les médicaments m'ont mis l'estomac sans dessus dessous.
+- Depuis le départ de la secrétaire, le planning des rendez-vous est sens dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:49:18,851 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:49:20,852 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Le comptable a disparu, laissant les livres de comptes sens dessus dessous.
+- Avec la grève des infirmières, le service est sans dessus dessous.
+- Balayée par un cyclone, la ville est sens dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:49:22,224 - __main__ - INFO - Réponse API pour intensive-training: {'phrases_correctes': [True, False, True]}
+2025-05-23 15:49:22,224 - __main__ - INFO - Tableau de booléens extrait: [True, False, True]
+2025-05-23 15:49:26,757 - nodriver.core.browser - INFO - starting
+	executable :C:\Program Files\Google\Chrome\Application\chrome.exe
+
+arguments:
+--remote-allow-origins=*
+	--no-first-run
+	--no-service-autorun
+	--no-default-browser-check
+	--homepage=about:blank
+	--no-pings
+	--password-store=basic
+	--disable-infobars
+	--disable-breakpad
+	--disable-dev-shm-usage
+	--disable-session-crashed-bubble
+	--disable-search-engine-choice-screen
+	--user-data-dir=C:\Users\pouar\AppData\Local\g4f-nodriver\g4f-nodriver
+	--disable-session-crashed-bubble
+	--disable-features=IsolateOrigins,site-per-process
+	--remote-debugging-host=127.0.0.1
+	--remote-debugging-port=62417
+2025-05-23 15:49:34,770 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Séverine a mis la maison sans dessus dessous pour retrouver ses clés de voiture.
+- Le remède a été pire que le mal : les médicaments m'ont mis l'estomac sans dessus dessous.
+- Depuis le départ de la secrétaire, le planning des rendez-vous est sens dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:49:37,775 - nodriver.core.browser - INFO - starting
+	executable :C:\Program Files\Google\Chrome\Application\chrome.exe
+
+arguments:
+--remote-allow-origins=*
+	--no-first-run
+	--no-service-autorun
+	--no-default-browser-check
+	--homepage=about:blank
+	--no-pings
+	--password-store=basic
+	--disable-infobars
+	--disable-breakpad
+	--disable-dev-shm-usage
+	--disable-session-crashed-bubble
+	--disable-search-engine-choice-screen
+	--user-data-dir=C:\Users\pouar\AppData\Local\g4f-nodriver\g4f-nodriver
+	--disable-session-crashed-bubble
+	--disable-features=IsolateOrigins,site-per-process
+	--remote-debugging-host=127.0.0.1
+	--remote-debugging-port=62451
+2025-05-23 15:49:46,787 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:49:48,788 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Séverine a mis la maison sans dessus dessous pour retrouver ses clés de voiture.
+- Le remède a été pire que le mal : les médicaments m'ont mis l'estomac sans dessus dessous.
+- Depuis le départ de la secrétaire, le planning des rendez-vous est sens dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:49:51,292 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Séverine a mis la maison sans dessus dessous pour retrouver ses clés de voiture.
+- Le remède a été pire que le mal : les médicaments m'ont mis l'estomac sans dessus dessous.
+- Depuis le départ de la secrétaire, le planning des rendez-vous est sens dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:49:51,937 - __main__ - INFO - Réponse API pour intensive-training: [True, True, True]
+2025-05-23 15:49:51,937 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:49:53,657 - __main__ - INFO - Réponse API pour intensive-training: {'phrases_correctes': [True, True, True]}
+2025-05-23 15:49:53,657 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:49:55,181 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Le divorce a mis la vie de cette famille sans dessus dessous.
+- Avec la grève des infirmières, le service est sans dessus dessous.
+- Le directeur général ayant démissionné, l'entreprise est sans dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:50:01,860 - __main__ - INFO - Réponse API pour intensive-training: {'phrases_correctes': [True, True, True]}
+2025-05-23 15:50:01,860 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:50:03,382 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Balayée par un cyclone, la ville est sens dessus dessous.
+- Après le passage de la femme de ménage, les dossiers étaient sens dessus dessous sur le bureau.
+- Le comptable a disparu, laissant les livres de comptes sens dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:50:04,784 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:50:06,176 - __main__ - INFO - Réponse API pour intensive-training: [True, True, True]
+2025-05-23 15:50:06,176 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:50:06,785 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Séverine a mis la maison sans dessus dessous pour retrouver ses clés de voiture.
+- Le remède a été pire que le mal : les médicaments m'ont mis l'estomac sans dessus dessous.
+- Depuis le départ de la secrétaire, le planning des rendez-vous est sens dessus dessous.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:50:07,618 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [False, True, True]}
+2025-05-23 15:50:07,618 - __main__ - INFO - Tableau de booléens extrait: [False, True, True]
+2025-05-23 15:50:07,718 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "Les cambrioleurs ont laissé la maison sans dessus dessous.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:50:23,853 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "Les cambrioleurs ont laissé la maison sans dessus dessous.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:50:37,727 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:50:39,728 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "Les cambrioleurs ont laissé la maison sans dessus dessous.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:50:40,270 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "Les cambrioleurs ont laissé la maison sans dessus dessous.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:50:41,910 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': None}
+2025-05-23 15:50:53,859 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:50:55,861 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "Les cambrioleurs ont laissé la maison sans dessus dessous.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:50:56,371 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': None}
+2025-05-23 15:50:57,540 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "Les cambrioleurs ont laissé la maison sans dessus dessous.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:51:00,022 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': 'dessus'}
+2025-05-23 15:51:02,062 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- C'est toi, et personne d'autre, qui as pris la responsabilité d'ouvrir ce conflit.
+- Toi qui sait tout, explique-nous ce qui se passe.
+- Ce n'est pourtant pas toi qui vas me donner des ordres !
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:51:06,830 - __main__ - INFO - Réponse API pour intensive-training: [True, True, True]
+2025-05-23 15:51:06,830 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:51:08,351 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Il va falloir se serrer la ceinture, c'est moi qui vous le dit !
+- Toi qui est le plus âgé, dis-nous ce qu'il convient de faire.
+- Ce n'est pas moi qui vais protester !
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:51:10,290 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:51:12,291 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "Les cambrioleurs ont laissé la maison sans dessus dessous.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:51:12,665 - __main__ - INFO - Réponse API pour intensive-training: [True, True, True]
+2025-05-23 15:51:12,665 - __main__ - INFO - Tableau de booléens extrait: [True, True, True]
+2025-05-23 15:51:14,194 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- Ce n'est pas toi qui décide de la conduite à tenir.
+- Moi qui lis lentement, j'en ai pour des semaines avec ce roman !
+- Pour moi qui veut changer d'horizon, c'est l'occasion rêvée !
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:51:14,898 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [False, True, False]}
+2025-05-23 15:51:14,898 - __main__ - INFO - Tableau de booléens extrait: [False, True, False]
+2025-05-23 15:51:22,226 - nodriver.core.browser - INFO - starting
+	executable :C:\Program Files\Google\Chrome\Application\chrome.exe
+
+arguments:
+--remote-allow-origins=*
+	--no-first-run
+	--no-service-autorun
+	--no-default-browser-check
+	--homepage=about:blank
+	--no-pings
+	--password-store=basic
+	--disable-infobars
+	--disable-breakpad
+	--disable-dev-shm-usage
+	--disable-session-crashed-bubble
+	--disable-search-engine-choice-screen
+	--user-data-dir=C:\Users\pouar\AppData\Local\g4f-nodriver\g4f-nodriver
+	--disable-session-crashed-bubble
+	--disable-features=IsolateOrigins,site-per-process
+	--remote-debugging-host=127.0.0.1
+	--remote-debugging-port=62839
+2025-05-23 15:51:37,258 - nodriver.core.browser - INFO - starting
+	executable :C:\Program Files\Google\Chrome\Application\chrome.exe
+
+arguments:
+--remote-allow-origins=*
+	--no-first-run
+	--no-service-autorun
+	--no-default-browser-check
+	--homepage=about:blank
+	--no-pings
+	--password-store=basic
+	--disable-infobars
+	--disable-breakpad
+	--disable-dev-shm-usage
+	--disable-session-crashed-bubble
+	--disable-search-engine-choice-screen
+	--user-data-dir=C:\Users\pouar\AppData\Local\g4f-nodriver\g4f-nodriver
+	--disable-session-crashed-bubble
+	--disable-features=IsolateOrigins,site-per-process
+	--remote-debugging-host=127.0.0.1
+	--remote-debugging-port=62958
+2025-05-23 15:51:42,305 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:51:44,307 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "Les cambrioleurs ont laissé la maison sans dessus dessous.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:51:46,429 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:51:50,528 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': 'cela'}
+2025-05-23 15:52:01,822 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': None}
+2025-05-23 15:52:03,364 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "Si tu as besoin de quoi que ce soit, tu peux compter sur nous.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:52:03,787 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:52:08,682 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': 'cela'}
+2025-05-23 15:52:14,004 - nodriver.core.browser - INFO - starting
+	executable :C:\Program Files\Google\Chrome\Application\chrome.exe
+
+arguments:
+--remote-allow-origins=*
+	--no-first-run
+	--no-service-autorun
+	--no-default-browser-check
+	--homepage=about:blank
+	--no-pings
+	--password-store=basic
+	--disable-infobars
+	--disable-breakpad
+	--disable-dev-shm-usage
+	--disable-session-crashed-bubble
+	--disable-search-engine-choice-screen
+	--user-data-dir=C:\Users\pouar\AppData\Local\g4f-nodriver\g4f-nodriver
+	--disable-session-crashed-bubble
+	--disable-features=IsolateOrigins,site-per-process
+	--remote-debugging-host=127.0.0.1
+	--remote-debugging-port=63091
+2025-05-23 15:52:14,319 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:52:14,319 - __main__ - ERROR - Erreur API GPT: Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:52:17,717 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': None}
+2025-05-23 15:52:19,762 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- N'importe quel espèce de poisson convient pour cette recette.
+- Ce bureau est en fait une espèce de placard.
+- N'importe quel espèce de téléphone fera l'affaire.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:52:24,151 - __main__ - INFO - Réponse API pour intensive-training: {'correctness': [False, True, False]}
+2025-05-23 15:52:24,151 - __main__ - WARNING - Format inattendu de la réponse API: {'correctness': [False, True, False]}
+2025-05-23 15:52:24,151 - __main__ - INFO - Tableau de booléens extrait: []
+2025-05-23 15:52:27,884 - nodriver.core.browser - INFO - starting
+	executable :C:\Program Files\Google\Chrome\Application\chrome.exe
+
+arguments:
+--remote-allow-origins=*
+	--no-first-run
+	--no-service-autorun
+	--no-default-browser-check
+	--homepage=about:blank
+	--no-pings
+	--password-store=basic
+	--disable-infobars
+	--disable-breakpad
+	--disable-dev-shm-usage
+	--disable-session-crashed-bubble
+	--disable-search-engine-choice-screen
+	--user-data-dir=C:\Users\pouar\AppData\Local\g4f-nodriver\g4f-nodriver
+	--disable-session-crashed-bubble
+	--disable-features=IsolateOrigins,site-per-process
+	--remote-debugging-host=127.0.0.1
+	--remote-debugging-port=63135
+2025-05-23 15:54:30,895 - __main__ - INFO - Appel API GPT - Prompt: Les phrases :
+- N'importe quel espèce de poisson convient pour cette recette.
+- Ce bureau est en fait une espèce de placard.
+- N'importe quel espèce de téléphone fera l'affaire.
+Sont elles correctes ? Répond avec un tableau JSON qui prend comme valeur un boolean si cette dernière est correcte (sous le format [true, false, true]).
+2025-05-23 15:54:33,267 - __main__ - INFO - Réponse API pour intensive-training: {'phrases': [False, True, False]}
+2025-05-23 15:54:33,267 - __main__ - INFO - Tableau de booléens extrait: [False, True, False]
+2025-05-23 15:54:34,791 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "On dirait un espèce de gros lézard.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:54:51,785 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "On dirait un espèce de gros lézard.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:55:04,800 - __main__ - ERROR - Timeout lors de l'appel à l'API GPT: L'appel à l'API GPT a dépassé le délai d'attente de 30 secondes
+2025-05-23 15:55:06,800 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "On dirait un espèce de gros lézard.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:55:09,792 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "On dirait un espèce de gros lézard.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:55:10,622 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': 'espèce'}
+2025-05-23 15:55:13,790 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "Après la fête, ma maison était sans dessus dessous.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:55:15,006 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': 'sans dessus dessous'}
+2025-05-23 15:55:17,786 - __main__ - INFO - Appel API GPT - Prompt: Corrige les fautes dans cette phrase : "Ce spectacle a mis les spectateurs sans dessus dessous.". Répond avec du JSON avec la clé "word_to_click" avec comme valeur le mot non corrigé qui a été corrigé, ou null s'il n'y a pas de fautes.
+2025-05-23 15:55:20,287 - __main__ - INFO - Réponse API pour fix-sentence: {'word_to_click': 'sans dessus dessous'}

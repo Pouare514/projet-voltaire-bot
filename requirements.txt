@@ -1,5 +1,15 @@
 flask==3.0.2
-g4f
+g4f>=0.5.3.0
 flask-cors==4.0.0
 requests==2.32.3
 SpeechRecognition==3.10.3
+tenacity==8.2.3
+python-dotenv==1.0.1
+logging-config==1.0.4
+pydantic==2.6.1
+waitress==2.1.2
+circuitbreaker==1.4.0
+prometheus-client==0.19.0
+pytimeparse==1.1.8
+watchdog==4.0.0
+pyrate-limiter==2.10.0

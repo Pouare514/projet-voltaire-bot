@@ -339,6 +339,12 @@ def handle_errors(func):
                         "word": nearest_words[0] if nearest_words else "",
                         "fallback": True
                     }), content_type="application/json")
+                elif endpoint == "analyze_cod_coi":
+                    # Analyse par défaut pour COD/COI
+                    return Response(json.dumps({
+                        "type": "COD",
+                        "fallback": True
+                    }), content_type="application/json")
             
             return Response(json.dumps({
                 "status": 503,
@@ -375,7 +381,8 @@ def rate_limit(func):
 memoization_cache = {
     "fix_sentence": {},
     "intensive_training": {},
-    "nearest_word": {}
+    "nearest_word": {},
+    "cod_coi": {}
 }
 
 # Expiration des entrées du cache (en secondes)
@@ -613,6 +620,8 @@ def call_gpt_api(prompt: str, model: str = "gpt-4", response_format: Dict = {"ty
                 cache_type = "intensive_training"
             elif "word" in json_response:
                 cache_type = "nearest_word"
+            elif "type" in json_response:
+                cache_type = "cod_coi"
             
             if cache_type:
                 memoization_cache[cache_type][cache_key] = {
@@ -1114,6 +1123,121 @@ def nearest_word():
         }), status=500, content_type="application/json")
     except Exception as e:
         logger.error(f"Erreur dans nearest_word: {str(e)}")
+        logger.error(traceback.format_exc())
+        return Response(json.dumps({
+            "status": 500,
+            "message": "Internal Server Error",
+            "description": "Une erreur inattendue s'est produite. Veuillez réessayer."
+        }), status=500, content_type="application/json")
+
+@app.route("/analyze-cod-coi", methods=["POST"])
+@handle_errors
+@rate_limit
+def analyze_cod_coi():
+    """
+    Analyse si un pronom dans une phrase est un COD (Complément d'Objet Direct) ou COI (Complément d'Objet Indirect).
+    """
+    if not request.json or "sentence" not in request.json or "pronoun" not in request.json:
+        response = Response(json.dumps({
+            "status": 400,
+            "message": "Bad Request",
+            "description": "The request must be a JSON with a key \"sentence\" and a key \"pronoun\"."
+        }), status=400, content_type="application/json")
+        raise HTTPException("Bad Request", response=response)
+
+    try:
+        sentence: str = request.json["sentence"]
+        pronoun: str = request.json["pronoun"]
+        
+        # Vérifier le cache
+        cache_key = f"cod_coi_{hash(sentence)}_{hash(pronoun)}"
+        if cache_key in memoization_cache.get("cod_coi", {}):
+            cached_entry = memoization_cache["cod_coi"][cache_key]
+            logger.info(f"Réponse trouvée dans le cache pour l'analyse COD/COI")
+            return Response(json.dumps(cached_entry["response"]), content_type="application/json")
+
+        prompt = f"""Analyse la phrase suivante et détermine si le pronom souligné "{pronoun}" est un COD (Complément d'Objet Direct) ou un COI (Complément d'Objet Indirect).
+
+Phrase: {sentence}
+Pronom à analyser: {pronoun}
+
+Règles de grammaire française:
+- COD répond à la question "qui?" ou "quoi?" après le verbe
+- COI répond à la question "à qui?", "à quoi?", "de qui?", "de quoi?" après le verbe
+
+Réponds uniquement avec un JSON au format {{"type": "COD"}} ou {{"type": "COI"}}."""
+
+        try:
+            # Appel à l'API avec retry et circuit breaker
+            result = call_gpt_api(prompt)
+            
+            logger.info(f"Réponse API pour analyze-cod-coi: {result}")
+            
+            # Validation de la réponse
+            if not isinstance(result, dict) or "type" not in result:
+                logger.warning("Réponse API invalide pour COD/COI, fallback vers COD")
+                result = {"type": "COD"}
+            
+            # S'assurer que le type est valide
+            if result["type"] not in ["COD", "COI"]:
+                logger.warning(f"Type invalide reçu: {result['type']}, fallback vers COD")
+                result = {"type": "COD"}
+            
+            # Initialiser le cache si nécessaire
+            if "cod_coi" not in memoization_cache:
+                memoization_cache["cod_coi"] = {}
+            
+            # Mettre en cache la réponse
+            memoization_cache["cod_coi"][cache_key] = {
+                "response": result,
+                "timestamp": time.time()
+            }
+            
+            return Response(json.dumps(result), content_type="application/json")
+        
+        except CircuitBreakerError as e:
+            logger.warning(f"Circuit breaker ouvert pour analyze-cod-coi: {e}")
+            
+            if CONFIG["ENABLE_METRICS"]:
+                circuit_open_counter.labels(circuit="call_gpt_api").inc()
+            
+            if CONFIG["ENABLE_FALLBACK"]:
+                logger.info("Utilisation du fallback pour analyze-cod-coi")
+                
+                if CONFIG["ENABLE_METRICS"]:
+                    circuit_fallback_counter.labels(circuit="call_gpt_api").inc()
+                
+                # Fallback simple : analyser le pronom pour deviner
+                fallback_result = {"type": "COD"}  # Par défaut COD
+                
+                # Heuristiques simples pour le fallback
+                pronoun_lower = pronoun.lower()
+                sentence_lower = sentence.lower()
+                
+                # Les pronoms COI courants
+                coi_indicators = ["lui", "leur", "y", "en"]
+                # Prépositions qui indiquent souvent un COI
+                coi_prepositions = ["à", "de", "pour", "avec", "sur", "dans"]
+                
+                if any(indicator in pronoun_lower for indicator in coi_indicators):
+                    fallback_result = {"type": "COI"}
+                elif any(prep in sentence_lower for prep in coi_prepositions):
+                    # Si la phrase contient des prépositions COI, plus probable que ce soit un COI
+                    fallback_result = {"type": "COI"}
+                
+                return Response(json.dumps(fallback_result), content_type="application/json")
+            else:
+                raise
+    
+    except GPTAPIError as e:
+        logger.error(f"Erreur API GPT: {str(e)}")
+        return Response(json.dumps({
+            "status": 500,
+            "message": "API Error",
+            "description": str(e)
+        }), status=500, content_type="application/json")
+    except Exception as e:
+        logger.error(f"Erreur dans analyze_cod_coi: {str(e)}")
         logger.error(traceback.format_exc())
         return Response(json.dumps({
             "status": 500,

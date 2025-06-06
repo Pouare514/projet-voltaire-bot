@@ -434,6 +434,153 @@
     }
   };
   
+  // Fonction pour traiter les exercices COD/COI
+  const processCodCoiExercise = async () => {
+    try {
+      log.info('Traitement de l\'exercice COD/COI');
+
+      // Récupérer la phrase complète
+      const sentenceElement = document.querySelector('.sentence');
+      if (!sentenceElement) {
+        log.warn('Phrase non trouvée pour l\'exercice COD/COI');
+        return;
+      }
+
+      const sentence = sentenceElement.textContent.trim();
+      log.info(`Phrase à analyser: "${sentence}"`);
+
+      // Récupérer le pronom souligné ou marqué
+      let pronoun = '';
+      const underlinedElement = sentenceElement.querySelector('u, .underlined, .highlight, strong, em');
+      
+      if (underlinedElement) {
+        pronoun = underlinedElement.textContent.trim();
+      } else {
+        // Fallback: chercher des mots clés courants
+        const commonPronouns = ['le', 'la', 'les', 'lui', 'leur', 'y', 'en', 'me', 'te', 'se', 'nous', 'vous'];
+        const words = sentence.toLowerCase().split(/\s+/);
+        
+        for (const word of words) {
+          if (commonPronouns.includes(word)) {
+            pronoun = word;
+            break;
+          }
+        }
+      }
+
+      if (!pronoun) {
+        log.warn('Pronom non identifié dans la phrase');
+        // Essayer de cliquer sur le premier bouton par défaut
+        const firstButton = document.querySelector('button[data-answer], .button');
+        if (firstButton) {
+          firstButton.click();
+          await wait(500);
+          
+          const nextButton = document.querySelector('.nextButton, .qccv-next, .validateButton');
+          if (nextButton) {
+            nextButton.click();
+            await wait(1000);
+            
+            if (isRunning) {
+              run();
+            }
+          }
+        }
+        return;
+      }
+
+      log.info(`Pronom identifié: "${pronoun}"`);
+
+      // Appeler l'API pour analyser si c'est COD ou COI
+      const res = await fetchWithRetry(`${apiUrl}/analyze-cod-coi`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          sentence: sentence,
+          pronoun: pronoun
+        }),
+      });
+
+      const result = res.type; // "COD" ou "COI"
+      log.info(`Résultat de l'analyse: ${result}`);
+
+      // Chercher le bouton correspondant
+      let targetButton = null;
+      
+      // Méthode 1: Chercher par data-answer
+      targetButton = document.querySelector(`[data-answer="${result}"]`);
+      
+      // Méthode 2: Chercher par texte du bouton
+      if (!targetButton) {
+        const buttons = Array.from(document.querySelectorAll('button, .button'));
+        targetButton = buttons.find(btn => 
+          btn.textContent.toLowerCase().includes(result.toLowerCase())
+        );
+      }
+
+      // Méthode 3: Chercher spécifiquement "COD" ou "COI" dans le texte
+      if (!targetButton) {
+        const buttons = Array.from(document.querySelectorAll('button, .button'));
+        if (result === 'COD') {
+          targetButton = buttons.find(btn => 
+            btn.textContent.toLowerCase().includes('cod') ||
+            btn.textContent.toLowerCase().includes('direct')
+          );
+        } else if (result === 'COI') {
+          targetButton = buttons.find(btn => 
+            btn.textContent.toLowerCase().includes('coi') ||
+            btn.textContent.toLowerCase().includes('indirect')
+          );
+        }
+      }
+
+      if (targetButton) {
+        targetButton.click();
+        log.success(`Clic sur le bouton "${result}" réussi`);
+        await wait(500);
+        
+        // Chercher le bouton suivant
+        const nextButton = document.querySelector('.nextButton, .qccv-next, .validateButton, .valider, .continuer');
+        if (nextButton) {
+          nextButton.click();
+          log.success('Exercice COD/COI complété');
+          await wait(1000);
+          
+          if (isRunning) {
+            run();
+          }
+        }
+      } else {
+        log.warn(`Bouton pour "${result}" non trouvé`);
+        
+        // Fallback: cliquer sur le premier bouton disponible
+        const firstButton = document.querySelector('button, .button');
+        if (firstButton) {
+          firstButton.click();
+          await wait(500);
+          
+          const nextButton = document.querySelector('.nextButton, .qccv-next, .validateButton');
+          if (nextButton) {
+            nextButton.click();
+            await wait(1000);
+            
+            if (isRunning) {
+              run();
+            }
+          }
+        }
+      }
+
+    } catch (error) {
+      log.error('Erreur lors du traitement de l\'exercice COD/COI', error);
+      
+      if (isRunning) {
+        await wait(3000);
+        processCodCoiExercise();
+      }
+    }
+  };
+
   // Fonction principale pour exécuter le bot
   const run = async () => {
     // Vérifier si on doit s'arrêter
@@ -474,6 +621,14 @@
       } else if (document.querySelector('.qccv-question-container')) {
         log.info('Question à choix multiple détectée');
         handleNearestWordQuestion();
+      } else if (document.querySelector('.sentence') && 
+                 (document.querySelector('button, .button').textContent.toLowerCase().includes('cod') || 
+                  document.querySelector('button, .button').textContent.toLowerCase().includes('coi') ||
+                  document.querySelector('[data-answer="COD"], [data-answer="COI"]') ||
+                  Array.from(document.querySelectorAll('button, .button')).some(btn => 
+                    btn.textContent.toLowerCase().includes('pronom')))) {
+        log.info('Exercice COD/COI détecté');
+        processCodCoiExercise();
       } else if (document.querySelector('.trainingEndViewCongrate')) {
         const nextLevelButton = document.querySelector('#btn_apprentissage_autres_niveaux');
         if (nextLevelButton) {

@@ -1,0 +1,17 @@
+flask
+g4f
+flask-cors
+requests
+SpeechRecognition
+tenacity
+python-dotenv
+logging-config
+pydantic
+waitress
+circuitbreaker
+prometheus-client
+pytimeparse
+watchdog
+pyrate-limiter
+pydub
+psutil

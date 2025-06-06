@@ -1,0 +1,7 @@
+/.idea/
+__pycache__
+/tmp/
+.venv
+venv
+*.har
+C:/Users/pouar/
